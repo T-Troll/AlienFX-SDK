@@ -1,5 +1,4 @@
 // AlienFX Sample App.cpp : Defines the entry point for the console application.
-//
 
 #include "stdafx.h"
 #include "../AlienFX_SDK/AlienFX_SDK.h"
@@ -25,10 +24,6 @@ int main()
 		//AlienFX_SDK::Functions::SetAction(2, AlienFX_SDK::Action::AlienFX_Color, 0, 0xfa, 255, 255, 255);
 		//AlienFX_SDK::Functions::UpdateColors();
 		//AlienFX_SDK::Functions::SetColor(AlienFX_SDK::Index::AlienFX_leftZone, 225, 0, 0); //r
-		//AlienFX_SDK::Functions::SetColor(AlienFX_SDK::Index::AlienFX_leftMiddleZone, 0, 0, 255); //b
-		//AlienFX_SDK::Functions::SetColor(AlienFX_SDK::Index::AlienFX_rightMiddleZone, 0, 255, 0); // g - right
-		//AlienFX_SDK::Functions::SetColor(AlienFX_SDK::Index::AlienFX_rightZone, 0, 255, 0); // right middle
-		//AlienFX_SDK::Functions::UpdateColors();
 		//std::cin.get();
 		for (int i = 0; i < 16; i++) { // let's test all lights...
 			std::cout << "Set zone " << std::dec << i << std::endl;
@@ -42,7 +37,6 @@ int main()
 		AlienFX_SDK::Functions::AlienFXClose();
 	}
 
-	//std::cin.get();
 	return 0;
 }
 

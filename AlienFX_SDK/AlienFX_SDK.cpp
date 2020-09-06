@@ -7,7 +7,6 @@
 extern "C" {
 #include <hidclass.h>
 #include <hidsdi.h>
-//#include <hidport.h>
 }
 
 #pragma comment(lib, "setupapi.lib")
@@ -95,7 +94,6 @@ namespace AlienFX_SDK
 							else
 								length = attributes->Size;
 							pid = attributes->ProductID;
-							//std::cout << "Device version: " << attributes->VersionNumber << std::endl;
 							version = attributes->VersionNumber;
 							flag = true;
 						}
@@ -105,7 +103,6 @@ namespace AlienFX_SDK
 				}
 			}
 		}
-		//OutputDebugString(flag);
 		return pid;
 	}
 
