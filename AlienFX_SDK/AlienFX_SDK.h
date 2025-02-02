@@ -31,7 +31,7 @@ namespace AlienFX_SDK {
     #define ALIENFX_FLAG_INDICATOR	2 // This is indicator light (keep at lights off)
 
 	// Maximal buffer size across all device types
-    #define MAX_BUFFERSIZE 65
+    #define MAX_BUFFERSIZE 193
 
 	union Afx_colorcode // Atomic color structure
 	{
@@ -43,7 +43,8 @@ namespace AlienFX_SDK {
 	};
 
 	struct Afx_icommand {
-		byte i, val;
+		int i;
+		vector<byte> vval;
 	};
 
 	struct Afx_light { // Light information block
@@ -93,6 +94,7 @@ namespace AlienFX_SDK {
 
 	enum Afx_Version {
 		API_ACPI = 0, //128
+		API_V9 = 9, //193
 		API_V8 = 8, //65
 		API_V7 = 7, //65
 		API_V6 = 6, //65
@@ -126,20 +128,20 @@ namespace AlienFX_SDK {
 		byte chain = 1; // seq. number for APIv1-v3
 
 		// support function for mask-based devices (v1-v3, v6)
-		vector<Afx_icommand>* SetMaskAndColor(vector<Afx_icommand>* mods, DWORD index, Afx_action c1, Afx_action c2 = { 0 }, byte tempo = 0);
+		vector<Afx_icommand>* SetMaskAndColor(vector<Afx_icommand>* mods, Afx_lightblock* act, bool needInverse = false, DWORD index = 0);
 
 		// Support function to send data to USB device
 		bool PrepareAndSend(const byte* command, vector<Afx_icommand> mods);
 		bool PrepareAndSend(const byte* command, vector<Afx_icommand> *mods = NULL);
 
 		// Add new light effect block for v8
-		void AddV8DataBlock(byte bPos, vector<Afx_icommand>* mods, Afx_lightblock* act);
+		inline void AddV8DataBlock(byte bPos, vector<Afx_icommand>* mods, Afx_lightblock* act);
 
 		// Add new color block for v5
-		void AddV5DataBlock(byte bPos, vector<Afx_icommand>* mods, byte index, Afx_action* act);
+		inline void AddV5DataBlock(byte bPos, vector<Afx_icommand>* mods, byte index, Afx_action* act);
 
 		// Support function to send whole power block for v1-v3
-		bool SavePowerBlock(byte blID, Afx_lightblock* act, bool needSave, bool needInverse = false);
+		void SavePowerBlock(byte blID, Afx_lightblock* act, bool needSave, bool needSecondary = false, bool needInverse = false);
 
 		// Support function for APIv4 action set
 		bool SetV4Action(Afx_lightblock* act);
@@ -250,9 +252,9 @@ namespace AlienFX_SDK {
 		};
 		Functions* dev = NULL;  // device control object pointer
 		string name;			// device name
+		int version = API_UNKNOWN; // API version used for this device
 		Afx_colorcode white = { 255,255,255 }; // white point
 		vector <Afx_light> lights; // vector of lights defined
-		int version = API_UNKNOWN; // API version used for this device
 	};
 
 	class Mappings {
@@ -271,12 +273,12 @@ namespace AlienFX_SDK {
 		// Enumerate all alienware devices into the system
 		// acc - link to AlienFan_SDK::Control object for ACPI lights
 		// returns vector of active device objects
-		vector<Functions*> AlienFXEnumDevices(void* acc);
+		bool AlienFXEnumDevices(void* acc);
 
 		// Apply device vector to fxdevs structure
 		// activeOnly - clear inactive devices from list
 		// devList - list of active devices
-		void AlienFXApplyDevices(bool activeOnly, vector<Functions*> devList);
+		void AlienFXApplyDevices();
 
 		// Load device data and assign it to structure, as well as init devices and set brightness
 		// activeOnly - clear inactive devices from list
@@ -304,6 +306,9 @@ namespace AlienFX_SDK {
 		// get device structure by PID/VID.
 		// VID can be zero for any VID
 		Afx_device* GetDeviceById(WORD pid, WORD vid = 0);
+
+		// get device by VID/PID DWORD.
+		Afx_device* GetDeviceById(DWORD devID);
 
 		// get or add device structure by PID/VID
 		// VID can be zero for any VID
