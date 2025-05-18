@@ -70,7 +70,6 @@ namespace AlienFX_SDK {
 		DWORD gid;
 		string name;
 		vector<Afx_groupLight> lights;
-		//bool have_power = false;
 	};
 
 	struct Afx_grid {
@@ -94,7 +93,7 @@ namespace AlienFX_SDK {
 
 	enum Afx_Version {
 		API_ACPI = 0, //128
-		API_V9 = 9, //193
+	//	API_V9 = 9, //193
 		API_V8 = 8, //65
 		API_V7 = 7, //65
 		API_V6 = 6, //65
@@ -156,8 +155,12 @@ namespace AlienFX_SDK {
 		BYTE WaitForBusy();
 
 	public:
-		WORD vid = 0; // Device VID
-		WORD pid = 0; // Device PID
+		union {
+			struct {
+				WORD pid, vid;			// Device IDs
+			};
+			DWORD devID;
+		};
 		int version = API_UNKNOWN; // interface version, will stay at API_UNKNOWN if not initialized
 		byte bright = 64; // Last brightness set for device
 		string description; // device description
@@ -225,19 +228,10 @@ namespace AlienFX_SDK {
 		// tempo - effect tempo
 		// act1 - first effect color
 		// act2 - second effect color (not for all effects)
-		bool SetGlobalEffects(byte effType, byte mode, byte nc, byte tempo, Afx_action act1, Afx_action act2);
+		bool SetGlobalEffects(byte effType, byte mode, byte nc, byte tempo, Afx_colorcode act1, Afx_colorcode act2);
 
 		// Apply changes and update colors
 		bool UpdateColors();
-
-		//// get PID for current device
-		//int GetPID();
-
-		//// get VID for current device
-		//int GetVID();
-
-		//// get API version for current device
-		//int GetVersion();
 
 		// check global effects availability
 		bool IsHaveGlobal();
@@ -273,7 +267,7 @@ namespace AlienFX_SDK {
 		// Enumerate all alienware devices into the system
 		// acc - link to AlienFan_SDK::Control object for ACPI lights
 		// returns vector of active device objects
-		bool AlienFXEnumDevices(void* acc);
+		bool AlienFXEnumDevices(void* acc = NULL);
 
 		// Apply device vector to fxdevs structure
 		// activeOnly - clear inactive devices from list
@@ -283,13 +277,19 @@ namespace AlienFX_SDK {
 		// Load device data and assign it to structure, as well as init devices and set brightness
 		// activeOnly - clear inactive devices from list
 		// acc - pointer to AlienFan_SDK::Control object for ACPI lights
-		void AlienFXAssignDevices(bool activeOnly = true, void* acc = NULL);
+		//void AlienFXAssignDevices(bool activeOnly = true, void* acc = NULL);
 
 		// load light names from registry
 		void LoadMappings();
 
 		// save light names into registry
 		void SaveMappings();
+
+		// Set device brightness
+		// dev - point to AFX device info
+		// br - brightness level
+		// power - set power/indicator lights too
+		void SetDeviceBrightness(Afx_device* dev, BYTE br, bool power);
 
 		// get saved light structure by device ID and light ID
 		Afx_light* GetMappingByID(WORD pid, WORD vid);
@@ -312,7 +312,7 @@ namespace AlienFX_SDK {
 
 		// get or add device structure by PID/VID
 		// VID can be zero for any VID
-		Afx_device* AddDeviceById(WORD pid, WORD vid);
+		Afx_device* AddDeviceById(DWORD devID);
 
 		// find light mapping into device structure by light ID
 		Afx_light* GetMappingByDev(Afx_device* dev, WORD LightID);
@@ -326,8 +326,8 @@ namespace AlienFX_SDK {
 		// get light flags (Power, indicator, etc) from light structure
 		int GetFlags(Afx_device* dev, WORD lightid);
 
-		// get light flags (Power, indicator) by DevID (PID/VID)
-		int GetFlags(DWORD devID, WORD lightid);
+		// get light flags (Power, indicator) by PID
+		int GetFlags(WORD pid, WORD lightid);
 	};
 
 }
